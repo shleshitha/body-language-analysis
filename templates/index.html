@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Body Language Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Interview Body Language Analysis</h1>
+        
+        <div class="main-content">
+            <div class="left-section">
+                <div class="video-container">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button id="startButton" class="button">Start Analysis</button>
+                    <button id="stopButton" class="button" disabled>Stop Analysis</button>
+                </div>
+            </div>
+            
+            <div class="right-section">
+                <div class="feedback-container">
+                    <div class="current-status">
+                        <h2>Current Status</h2>
+                        <div class="status-item">
+                            <h3>Lighting</h3>
+                            <p id="lightingStatus">Waiting for analysis...</p>
+                        </div>
+                        <div class="status-item">
+                            <h3>Posture</h3>
+                            <p id="postureStatus">Waiting for analysis...</p>
+                        </div>
+                        <div class="status-item">
+                            <h3>Eye Contact</h3>
+                            <p id="eyeContactStatus">Waiting for analysis...</p>
+                        </div>
+                        <div class="status-item">
+                            <h3>Expression</h3>
+                            <p id="emotionStatus">Waiting for analysis...</p>
+                        </div>
+                        <div class="status-item">
+                            <h3>Hand Movement</h3>
+                            <p id="handStatus">Waiting for analysis...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="suggestions">
+                        <h2>Suggestions for Improvement</h2>
+                        <ul id="improvementList">
+                            <li>Start the analysis to get real-time feedback</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="overall-feedback">
+                        <h2>Overall Performance</h2>
+                        <p id="overallFeedback">Start the analysis to get an overall assessment of your body language.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
