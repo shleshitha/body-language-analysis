@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const improvementList = document.getElementById('improvementList');
     const overallFeedback = document.getElementById('overallFeedback');
     
+    // Loader element
+    const loader = document.getElementById('loader');
+    
     let stream = null;
     let isAnalyzing = false;
     let analysisInterval = null;
@@ -41,6 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
             video.srcObject = null;
             stream = null;
         }
+    }
+    
+    // Helper to show loader
+    function showLoader() {
+        loader.style.display = 'block';
+    }
+    
+    // Helper to hide loader
+    function hideLoader() {
+        loader.style.display = 'none';
     }
     
     // Update posture status
@@ -102,54 +115,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Update emotion status
-    function updateEmotionStatus(score, emotion) {
+    function updateEmotionStatus(score, emotion, faceDetected) {
         let message = "";
         let color = '#fbbc05';  // Default yellow
-        
-        switch(emotion) {
-            case 'big smile':
-                message = "Excellent! Your genuine smile shows great confidence and enthusiasm!";
-                color = '#34a853';  // Green
-                break;
-            case 'happy':
-                message = "Great! Your smile shows confidence and positivity!";
-                color = '#34a853';  // Green
-                break;
-            case 'pleasant':
-                message = "Good! You have a pleasant, approachable expression.";
-                color = '#34a853';  // Green
-                break;
-            case 'engaging':
-                message = "You're speaking with good energy and engagement.";
-                color = '#34a853';  // Green
-                break;
-            case 'focused':
-                message = "You appear focused and attentive.";
-                color = '#fbbc05';  // Yellow
-                break;
-            case 'concerned':
-                message = "Try to relax your expression, you appear a bit tense.";
-                color = '#ea4335';  // Red
-                break;
-            case 'negative':
-                message = "Try to maintain a more positive expression.";
-                color = '#ea4335';  // Red
-                break;
-            default:
-                message = "Try to be more expressive and show more engagement.";
-                color = '#fbbc05';  // Yellow
+        if (!faceDetected) {
+            message = "Face not detected";
+            color = '#ea4335';
+        } else {
+            switch(emotion) {
+                case 'big smile':
+                    message = "Excellent! Your genuine smile shows great confidence and enthusiasm!";
+                    color = '#34a853';  // Green
+                    break;
+                case 'happy':
+                    message = "Great! Your smile shows confidence and positivity!";
+                    color = '#34a853';  // Green
+                    break;
+                case 'pleasant':
+                    message = "Good! You have a pleasant, approachable expression.";
+                    color = '#34a853';  // Green
+                    break;
+                case 'engaging':
+                    message = "You're speaking with good energy and engagement.";
+                    color = '#34a853';  // Green
+                    break;
+                case 'focused':
+                    message = "You appear focused and attentive.";
+                    color = '#fbbc05';  // Yellow
+                    break;
+                case 'concerned':
+                    message = "Try to relax your expression, you appear a bit tense.";
+                    color = '#ea4335';  // Red
+                    break;
+                case 'negative':
+                    message = "Try to maintain a more positive expression.";
+                    color = '#ea4335';  // Red
+                    break;
+                default:
+                    message = "Try to be more expressive and show more engagement.";
+                    color = '#fbbc05';  // Yellow
+            }
         }
-        
         emotionStatus.textContent = message;
         emotionStatus.style.color = color;
     }
     
     // Update hand movement status
-    function updateHandStatus(score, movement, isFaceTouching) {
+    function updateHandStatus(score, movement, isFaceTouching, faceDetected) {
         let message = "";
         let color = '#fbbc05';  // Default yellow
-        
-        if (isFaceTouching) {
+        if (!faceDetected) {
+            message = "Face not detected";
+            color = '#ea4335';
+        } else if (isFaceTouching) {
             message = "⚠️ Avoid touching your face - this can appear nervous or unprofessional.";
             color = '#ea4335';  // Red
         } else {
@@ -179,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     color = '#fbbc05';  // Yellow
             }
         }
-        
         handStatus.textContent = message;
         handStatus.style.color = color;
     }
@@ -199,62 +216,75 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update improvement suggestions
     function updateImprovements(data) {
-        const suggestions = [];
-        
-        // Check for multiple faces
-        if (data.multiple_faces) {
-            suggestions.push("⚠️ Multiple faces detected. Please ensure only one person is visible in the frame.");
-        }
-        
-        // Check lighting
+        const categories = {
+            lighting: [],
+            face: [],
+            posture: [],
+            eye: [],
+            expression: [],
+            hand: [],
+            general: []
+        };
+        // Lighting
         if (data.lighting.status !== 'good') {
-            suggestions.push(data.lighting.message);
+            categories.lighting.push(`<i class='fas fa-lightbulb'></i> ${data.lighting.message}`);
         }
-        
-        // Check face position
-        if (!data.face_position.is_centered) {
-            suggestions.push(data.face_position.message);
+        // Face
+        if (data.multiple_faces) {
+            categories.face.push(`<i class='fas fa-users'></i> Multiple faces detected. Please ensure only one person is visible in the frame.`);
+        } else if (!data.face_position.is_centered) {
+            categories.face.push(`<i class='fas fa-user'></i> ${data.face_position.message}`);
         }
-        
-        if (data.face_touching) {
-            suggestions.push("Stop touching your face - this can make you appear nervous and is unprofessional.");
-        }
-        
+        // Posture
         if (data.scores.posture < 70) {
-            suggestions.push("Focus on maintaining a straight posture - keep your shoulders back and head up.");
+            categories.posture.push(`<i class='fas fa-chair'></i> Focus on maintaining a straight posture - keep your shoulders back and head up.`);
         }
-        
+        // Eye Contact
         if (data.looking_direction !== 'direct') {
             switch(data.looking_direction) {
                 case 'looking_left':
                 case 'looking_right':
-                    suggestions.push("Keep your eyes focused on the camera to maintain good eye contact.");
+                    categories.eye.push(`<i class='fas fa-eye'></i> Keep your eyes focused on the camera to maintain good eye contact.`);
                     break;
                 case 'looking_up':
                 case 'looking_down':
-                    suggestions.push("Adjust your gaze to look directly at the camera.");
+                    categories.eye.push(`<i class='fas fa-eye'></i> Adjust your gaze to look directly at the camera.`);
                     break;
                 case 'not_detected':
                     if (!data.multiple_faces) {
-                        suggestions.push("Position yourself so your face is clearly visible to the camera.");
+                        categories.eye.push(`<i class='fas fa-eye-slash'></i> Position yourself so your face is clearly visible to the camera.`);
                     }
                     break;
             }
         }
-        
-        if (data.scores.emotion < 60) {
-            suggestions.push("Try to appear more relaxed and show more positive expressions.");
+        // Expression
+        if (data.scores.emotion < 60 && data.face_position.is_centered) {
+            categories.expression.push(`<i class='fas fa-smile'></i> Try to appear more relaxed and show more positive expressions.`);
+        } else if (!data.face_position.is_centered) {
+            categories.expression.push(`<i class='fas fa-smile'></i> Face not detected, so expression can't be analyzed.`);
         }
-        
-        if (data.scores.hand < 70 && !data.face_touching) {
-            suggestions.push("Work on using more natural hand gestures while speaking.");
+        // Hand
+        if (data.face_touching && data.face_position.is_centered) {
+            categories.hand.push(`<i class='fas fa-hand-paper'></i> Stop touching your face - this can make you appear nervous and is unprofessional.`);
         }
-        
-        if (suggestions.length === 0) {
-            suggestions.push("Great job! Keep maintaining your current body language.");
+        if (data.scores.hand < 70 && !data.face_touching && data.face_position.is_centered) {
+            categories.hand.push(`<i class='fas fa-hand-paper'></i> Work on using more natural hand gestures while speaking.`);
+        } else if (!data.face_position.is_centered) {
+            categories.hand.push(`<i class='fas fa-hand-paper'></i> Face not detected, so hand movement can't be analyzed.`);
         }
-        
-        improvementList.innerHTML = suggestions.map(suggestion => `<li>${suggestion}</li>`).join('');
+        // General
+        if (
+            categories.lighting.length === 0 &&
+            categories.face.length === 0 &&
+            categories.posture.length === 0 &&
+            categories.eye.length === 0 &&
+            categories.expression.length === 0 &&
+            categories.hand.length === 0
+        ) {
+            categories.general.push(`<i class='fas fa-check-circle'></i> Great job! Keep maintaining your current body language.`);
+        }
+        // Render suggestions
+        improvementList.innerHTML = Object.values(categories).flat().map(suggestion => `<li>${suggestion}</li>`).join('');
     }
     
     // Update overall feedback
@@ -292,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Capture frame and send for analysis
     async function captureAndAnalyze() {
+        showLoader();
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = video.videoWidth;
         tempCanvas.height = video.videoHeight;
@@ -316,16 +347,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             
             // Update UI with results
+            const faceDetected = data.face_position && data.face_position.is_centered;
             updatePostureStatus(data.scores.posture);
             updateEyeContactStatus(data.scores.eye_contact, data.looking_direction, data.face_position);
-            updateEmotionStatus(data.scores.emotion, data.emotion);
-            updateHandStatus(data.scores.hand, data.hand_movement, data.face_touching);
+            updateEmotionStatus(data.scores.emotion, data.emotion, faceDetected);
+            updateHandStatus(data.scores.hand, data.hand_movement, data.face_touching, faceDetected);
             updateLightingStatus(data.lighting);
             updateImprovements(data);
             updateOverallFeedback(data);
             
         } catch (err) {
             console.error('Error during analysis:', err);
+        } finally {
+            hideLoader();
         }
     }
     
@@ -358,13 +392,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         stopWebcam();
+        hideLoader();
         
         // Reset status messages
         postureStatus.textContent = "Waiting for analysis...";
         eyeContactStatus.textContent = "Waiting for analysis...";
         emotionStatus.textContent = "Waiting for analysis...";
         handStatus.textContent = "Waiting for analysis...";
-        improvementList.innerHTML = "<li>Start the analysis to get real-time feedback</li>";
+        improvementList.innerHTML = "<li><i class='fas fa-arrow-right'></i> Start the analysis to get real-time feedback</li>";
         overallFeedback.textContent = "Start the analysis to get an overall assessment of your body language.";
     }
     

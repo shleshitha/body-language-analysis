@@ -4,60 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interview Body Language Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Interview Body Language Analysis</h1>
-        
+        <h1><i class="fas fa-user-check"></i> Interview Body Language Analysis</h1>
         <div class="main-content">
             <div class="left-section">
                 <div class="video-container">
                     <video id="webcam" autoplay playsinline></video>
                     <canvas id="overlay"></canvas>
                 </div>
-                
                 <div class="controls">
-                    <button id="startButton" class="button">Start Analysis</button>
-                    <button id="stopButton" class="button" disabled>Stop Analysis</button>
+                    <button id="startButton" class="button"><i class="fas fa-play"></i> Start Analysis</button>
+                    <button id="stopButton" class="button" disabled><i class="fas fa-stop"></i> Stop Analysis</button>
                 </div>
+                <div class="loader" id="loader"></div>
             </div>
-            
             <div class="right-section">
                 <div class="feedback-container">
                     <div class="current-status">
-                        <h2>Current Status</h2>
+                        <h2><i class="fas fa-info-circle"></i> Current Status</h2>
                         <div class="status-item">
-                            <h3>Lighting</h3>
-                            <p id="lightingStatus">Waiting for analysis...</p>
+                            <i class="fas fa-lightbulb"></i>
+                            <div>
+                                <h3>Lighting</h3>
+                                <p id="lightingStatus">Waiting for analysis...</p>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <h3>Posture</h3>
-                            <p id="postureStatus">Waiting for analysis...</p>
+                            <i class="fas fa-chair"></i>
+                            <div>
+                                <h3>Posture</h3>
+                                <p id="postureStatus">Waiting for analysis...</p>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <h3>Eye Contact</h3>
-                            <p id="eyeContactStatus">Waiting for analysis...</p>
+                            <i class="fas fa-eye"></i>
+                            <div>
+                                <h3>Eye Contact</h3>
+                                <p id="eyeContactStatus">Waiting for analysis...</p>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <h3>Expression</h3>
-                            <p id="emotionStatus">Waiting for analysis...</p>
+                            <i class="fas fa-smile"></i>
+                            <div>
+                                <h3>Expression</h3>
+                                <p id="emotionStatus">Waiting for analysis...</p>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <h3>Hand Movement</h3>
-                            <p id="handStatus">Waiting for analysis...</p>
+                            <i class="fas fa-hand-paper"></i>
+                            <div>
+                                <h3>Hand Movement</h3>
+                                <p id="handStatus">Waiting for analysis...</p>
+                            </div>
                         </div>
                     </div>
-                    
                     <div class="suggestions">
-                        <h2>Suggestions for Improvement</h2>
+                        <h2><i class="fas fa-lightbulb"></i> Suggestions for Improvement</h2>
                         <ul id="improvementList">
-                            <li>Start the analysis to get real-time feedback</li>
+                            <li><i class="fas fa-arrow-right"></i> Start the analysis to get real-time feedback</li>
                         </ul>
                     </div>
-                    
                     <div class="overall-feedback">
-                        <h2>Overall Performance</h2>
+                        <h2><i class="fas fa-star"></i> Overall Performance</h2>
                         <p id="overallFeedback">Start the analysis to get an overall assessment of your body language.</p>
                     </div>
                 </div>
