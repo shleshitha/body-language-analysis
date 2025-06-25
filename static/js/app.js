@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('webcam');
-    const canvas = document.getElementById('overlay');
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
     
